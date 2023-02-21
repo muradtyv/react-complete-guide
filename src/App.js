@@ -1,29 +1,45 @@
+import React, { useEffect } from "react";
+
 import { useState } from "react";
-import AddUser from "./components/Users/AddUser";
-import UserList from "./components/Users/UserList";
+import Home from "./components/Home/Home";
+import Login from "./components/Login/Login";
+import MainHeader from "./components/MainHeader/MainHeader";
+import AuthContext from "./store/auth-context";
 
 function App() {
-  // const USERS = [
-  //   {
-  //     id:1,
-  //     name: "Murad",
-  //     age: "21"
-  //   }
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  // ]
-  const [userList, setUserList] = useState([]);
+  useEffect(() => {
+    const storedUserLoggedInInformation = localStorage.getItem("isLoggedIn");
 
-  const addUserHandler = (uName, uAge) => {
-    setUserList((prevUserList) => {
-      return [...prevUserList, {name: uName, age: uAge, id: Math.random().toString()}]
-    })
-  }
+    if (storedUserLoggedInInformation === "1") {
+      setIsLoggedIn(true);
+    }
+  }, []);
+
+  const loginHandler = (email, password) => {
+    localStorage.setItem("isLoggedIn", "1");
+    setIsLoggedIn(true);
+  };
+
+  const loggoutHandler = () => {
+    localStorage.removeItem("isLoggedIn");
+    setIsLoggedIn(false);
+  };
 
   return (
-    <div>
-      <AddUser onAddUser = {addUserHandler} />
-      <UserList users={userList} />
-    </div>
+    <AuthContext.Provider
+      value={{
+        isLoggedIn: isLoggedIn,
+        onLogout: loggoutHandler
+      }}
+    >
+      <MainHeader onLogout={loggoutHandler} />
+      <main>
+        {!isLoggedIn && <Login onLogin={loginHandler} />}
+        {isLoggedIn && <Home onLogout={loggoutHandler} />}
+      </main>
+    </AuthContext.Provider>
   );
 }
 
